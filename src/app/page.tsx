@@ -122,8 +122,6 @@ export default function Home() {
       />
 
       <main className="flex-grow max-w-[2000px] mx-auto px-6 py-12 w-full">
-        <ProgramInfo />
-        
         {view === 'dashboard' ? (
           <DashboardStats repositories={uniqueRepositories} />
         ) : (
