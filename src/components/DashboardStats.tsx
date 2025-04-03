@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, AreaChart, Area } from 'recharts';
 import { Activity, Users, TrendingUp, Award } from 'lucide-react';
 
 interface Repository {
@@ -31,6 +31,22 @@ const mockBarData = [
   { name: 'Categoria B', value: 300 },
   { name: 'Categoria C', value: 600 },
   { name: 'Categoria D', value: 800 },
+];
+
+const mockPieData = [
+  { name: 'Grupo A', value: 400 },
+  { name: 'Grupo B', value: 300 },
+  { name: 'Grupo C', value: 300 },
+  { name: 'Grupo D', value: 200 },
+];
+
+const mockAreaData = [
+  { name: 'Jan', value1: 400, value2: 240 },
+  { name: 'Fev', value1: 300, value2: 139 },
+  { name: 'Mar', value1: 600, value2: 980 },
+  { name: 'Abr', value1: 800, value2: 390 },
+  { name: 'Mai', value1: 700, value2: 480 },
+  { name: 'Jun', value1: 900, value2: 380 },
 ];
 
 export function DashboardStats({ repositories }: DashboardStatsProps) {
@@ -120,6 +136,43 @@ export function DashboardStats({ repositories }: DashboardStatsProps) {
                 <Tooltip />
                 <Bar dataKey="value" fill="#3B82F6" />
               </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Rewards by Group</h3>
+          <div className="h-[300px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={mockPieData}
+                  dataKey="value"
+                  nameKey="name"
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={80}
+                  fill="#3B82F6"
+                  label
+                />
+                <Tooltip />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Activity Comparison</h3>
+          <div className="h-[300px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={mockAreaData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="name" />
+                <YAxis />
+                <Tooltip />
+                <Area type="monotone" dataKey="value1" stackId="1" stroke="#3B82F6" fill="#3B82F6" />
+                <Area type="monotone" dataKey="value2" stackId="1" stroke="#10B981" fill="#10B981" />
+              </AreaChart>
             </ResponsiveContainer>
           </div>
         </div>
