@@ -47,8 +47,8 @@ export default function Home() {
   const [search, setSearch] = useState('');
   const [sortBy, setSortBy] = useState<'score' | 'reward'>('score');
   const [view, setView] = useState<'dashboard' | 'list'>('dashboard');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<Error | null>(null);
+  const [loading] = useState(false);
+  const [error] = useState<Error | null>(null);
 
   // Ensure unique repositories by name
   const uniqueRepositories = useMemo(() => {
@@ -59,7 +59,7 @@ export default function Home() {
       }
     });
     return Array.from(repoMap.values());
-  }, [mockRepositories]);
+  }, []);
 
   const filteredAndSortedRepos = useMemo(() => {
     return uniqueRepositories
