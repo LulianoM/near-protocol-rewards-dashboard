@@ -7,6 +7,9 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "NEAR Protocol Rewards Dashboard",
   description: "Dashboard para visualização de recompensas do NEAR Protocol",
+  icons: {
+    icon: '/icon.png',
+  },
 };
 
 export default function RootLayout({
