@@ -28,7 +28,7 @@ export function Header({
           {/* Title Section */}
           <div>
             <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">NEAR Protocol Rewards</h1>
-            <p className="text-sm sm:text-base text-gray-600 mt-1">Developer Activity & Rewards Dashboard</p>
+            <p className="text-sm sm:text-base text-gray-600 mt-1">Activity & Rewards Dashboard</p>
           </div>
           
           {/* Controls Section */}
@@ -77,7 +77,9 @@ export function Header({
                 className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 transition-colors"
               >
                 <ArrowUpDown size={18} />
-                <span className="text-sm">Sort by {sortBy === 'score' ? 'Score' : 'Reward'}</span>
+                <span className="text-sm">
+                  Sort by {sortBy === 'score' ? 'Score' : 'Reward'}
+                </span>
               </button>
             </div>
           </div>

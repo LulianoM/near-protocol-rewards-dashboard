@@ -13,32 +13,44 @@ interface Repository {
   periodEnd: string;
 }
 
+interface DashboardData {
+  total_commits: number;
+  total_projects: number;
+  total_monetary_rewards: number;
+}
+
 interface DashboardStatsProps {
   repositories: Repository[];
+  dashboardData?: DashboardData;
 }
 
 const mockData = [
   { name: 'Jan', value: 400 },
-  { name: 'Fev', value: 300 },
+  { name: 'Feb', value: 300 },
   { name: 'Mar', value: 600 },
-  { name: 'Abr', value: 800 },
-  { name: 'Mai', value: 700 },
+  { name: 'Apr', value: 800 },
+  { name: 'May', value: 700 },
   { name: 'Jun', value: 900 },
 ];
 
 const mockBarData = [
-  { name: 'Categoria A', value: 400 },
-  { name: 'Categoria B', value: 300 },
-  { name: 'Categoria C', value: 600 },
-  { name: 'Categoria D', value: 800 },
+  { name: 'Category A', value: 400 },
+  { name: 'Category B', value: 300 },
+  { name: 'Category C', value: 600 },
+  { name: 'Category D', value: 800 },
 ];
 
-export function DashboardStats({ repositories }: DashboardStatsProps) {
-  const totalRewards = repositories.reduce((acc, repo) => acc + repo.weeklyReward, 0);
-  const averageScore = repositories.reduce((acc, repo) => acc + repo.totalScore, 0) / repositories.length;
-  const activeRepos = repositories.length;
-  const participationRate = (activeRepos / 200) * 100; // Mock total possible repos
-
+export function DashboardStats({ repositories, dashboardData }: DashboardStatsProps) {
+  // Usar dados da API se disponíveis, ou calcular a partir dos repositórios
+  const totalRewards = dashboardData?.total_monetary_rewards || 
+    repositories.reduce((acc, repo) => acc + repo.weeklyReward, 0);
+    
+  const averageScore = repositories.length > 0 ? 
+    repositories.reduce((acc, repo) => acc + repo.totalScore, 0) / repositories.length : 
+    0;
+    
+  const activeRepos = dashboardData?.total_projects || repositories.length;
+  
   return (
     <div className="space-y-8">
       {/* Stats Cards */}
@@ -50,7 +62,7 @@ export function DashboardStats({ repositories }: DashboardStatsProps) {
             </div>
             <div>
               <p className="text-sm text-gray-600">Total Rewards</p>
-              <p className="text-2xl font-semibold text-gray-900">{totalRewards.toLocaleString()} NEAR</p>
+              <p className="text-2xl font-semibold text-gray-900">${totalRewards.toLocaleString()}</p>
             </div>
           </div>
         </div>
@@ -85,8 +97,8 @@ export function DashboardStats({ repositories }: DashboardStatsProps) {
               <TrendingUp className="w-6 h-6 text-orange-600" />
             </div>
             <div>
-              <p className="text-sm text-gray-600">Participation Rate</p>
-              <p className="text-2xl font-semibold text-gray-900">{participationRate.toFixed(1)}%</p>
+              <p className="text-sm text-gray-600">Total Commits</p>
+              <p className="text-2xl font-semibold text-gray-900">{dashboardData?.total_commits || 0}</p>
             </div>
           </div>
         </div>
