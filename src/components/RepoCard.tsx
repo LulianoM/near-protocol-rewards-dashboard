@@ -17,6 +17,13 @@ interface RepoCardProps {
 }
 
 export function RepoCard({ repo }: RepoCardProps) {
+  // Tradução dos níveis de recompensa
+  const nivelRecompensa = {
+    'High': 'Alto',
+    'Medium': 'Médio',
+    'Low': 'Baixo'
+  }[repo.rewardLevel] || repo.rewardLevel;
+
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
       <div className="flex items-start justify-between mb-4">
@@ -29,18 +36,18 @@ export function RepoCard({ repo }: RepoCardProps) {
           repo.rewardLevel === 'Medium' ? 'bg-yellow-100 text-yellow-800' :
           'bg-red-100 text-red-800'
         }`}>
-          {repo.rewardLevel}
+          {nivelRecompensa}
         </span>
       </div>
 
       <div className="space-y-4">
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <p className="text-sm text-gray-600 mb-1">Total Score</p>
+            <p className="text-sm text-gray-600 mb-1">Pontuação Total</p>
             <p className="text-xl font-semibold text-gray-900">{repo.totalScore.toLocaleString()}</p>
           </div>
           <div>
-            <p className="text-sm text-gray-600 mb-1">Weekly Reward</p>
+            <p className="text-sm text-gray-600 mb-1">Recompensa Semanal</p>
             <p className="text-xl font-semibold text-gray-900">{repo.weeklyReward.toLocaleString()} NEAR</p>
           </div>
         </div>
@@ -62,7 +69,7 @@ export function RepoCard({ repo }: RepoCardProps) {
 
         <div className="flex items-center gap-2 text-sm text-gray-500">
           <AlertCircle className="w-4 h-4" />
-          <span>Period: {new Date(repo.periodStart).toLocaleDateString()} - {new Date(repo.periodEnd).toLocaleDateString()}</span>
+          <span>Período: {new Date(repo.periodStart).toLocaleDateString()} - {new Date(repo.periodEnd).toLocaleDateString()}</span>
         </div>
       </div>
     </div>

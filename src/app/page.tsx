@@ -1,13 +1,104 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Header } from '@/components/Header';
-import { ProgramInfo } from '@/components/ProgramInfo';
 import { DashboardStats } from '@/components/DashboardStats';
 import { RepoCard } from '@/components/RepoCard';
 import { Loader2 } from 'lucide-react';
+import { AlertCircle } from 'lucide-react';
 
-// Mock data
+// Tipos para os dados da API
+interface Achievement {
+  id: string;
+  name: string;
+  description: string;
+  earnedAt: string;
+  category: string;
+}
+
+interface Level {
+  name: string;
+  minScore: number;
+  maxScore: number;
+  color: string;
+}
+
+interface Reward {
+  score: {
+    total: number;
+    breakdown: {
+      commits: number;
+      pullRequests: number;
+      reviews: number;
+      issues: number;
+    }
+  };
+  breakdown: {
+    commits: number;
+    pullRequests: number;
+    reviews: number;
+    issues: number;
+  };
+  level: Level;
+  monetary_reward: number;
+  achievements: Achievement[];
+  metadata: {
+    timestamp: number;
+    periodStart: number;
+    periodEnd: number;
+    source: string;
+    projectId: string;
+  };
+}
+
+interface ApiRepository {
+  repository: string;
+  period: string;
+  timestamp: string;
+  metrics: {
+    commits: {
+      count: number;
+      authors: { login: string; count: number }[];
+    };
+    pull_requests: {
+      open: number;
+      merged: number;
+      closed: number;
+      authors: string[];
+    };
+    reviews: {
+      count: number;
+      authors: string[];
+    };
+    issues: {
+      open: number;
+      closed: number;
+      participants: string[];
+    };
+  };
+  reward: Reward;
+}
+
+interface ApiResponse {
+  projects: ApiRepository[];
+  dashboard: {
+    total_commits: number;
+    total_projects: number;
+    total_monetary_rewards: number;
+  };
+}
+
+// Interface para o formato que nosso app utiliza
+interface Repository {
+  name: string;
+  totalScore: number;
+  weeklyReward: number;
+  rewardLevel: string;
+  periodStart: string;
+  periodEnd: string;
+}
+
+// Mock data como fallback
 const mockRepositories = [
   {
     name: 'near/core-contracts',
@@ -43,23 +134,237 @@ const mockRepositories = [
   },
 ];
 
+// Dados mockados no formato da API para uso quando a API não estiver disponível
+const mockApiData: ApiResponse = {
+  projects: [
+    {
+      repository: 'finowl-near/finowl-app',
+      period: '2025-04',
+      timestamp: '2025-04-06T01:45:36.952505',
+      metrics: {
+        commits: {
+          count: 3,
+          authors: [
+            { login: 'finowl-near', count: 1 },
+            { login: 'unknown', count: 1 },
+            { login: 'KD-ayoub', count: 1 }
+          ],
+        },
+        pull_requests: {
+          open: 0,
+          merged: 1,
+          closed: 0,
+          authors: ['B-Naoufal'],
+        },
+        reviews: {
+          count: 61,
+          authors: ['B-Naoufal', 'KD-ayoub', 'finowl-near'],
+        },
+        issues: {
+          open: 0,
+          closed: 1,
+          participants: ['B-Naoufal'],
+        },
+      },
+      reward: {
+        score: {
+          total: 22.96666666666667,
+          breakdown: {
+            commits: 1.0499999999999998,
+            pullRequests: 1.25,
+            reviews: 20.0,
+            issues: 0.6666666666666667,
+          },
+        },
+        breakdown: {
+          commits: 1.0499999999999998,
+          pullRequests: 1.25,
+          reviews: 20.0,
+          issues: 0.6666666666666667,
+        },
+        level: {
+          name: 'Member',
+          minScore: 0,
+          maxScore: 49,
+          color: '#A4A4A4',
+        },
+        monetary_reward: 500,
+        achievements: [
+          {
+            id: 'review-expert',
+            name: 'Review Expert',
+            description: 'Completed 30 or more code reviews',
+            earnedAt: '2025-04-06T01:45:36.952551',
+            category: 'review',
+          },
+        ],
+        metadata: {
+          timestamp: 1743903936952,
+          periodStart: 1743465600000,
+          periodEnd: 1743903936952,
+          source: 'github',
+          projectId: 'finowl-near/finowl-app',
+        },
+      },
+    },
+    {
+      repository: 'wootzapp/wootz-browser',
+      period: '2025-04',
+      timestamp: '2025-04-06T01:46:10.995628',
+      metrics: {
+        commits: {
+          count: 4,
+          authors: [
+            { login: 'pandey019', count: 1 },
+            { login: '1311-hack1', count: 1 },
+            { login: 'kritagya-khanna', count: 2 }
+          ],
+        },
+        pull_requests: {
+          open: 1,
+          merged: 0,
+          closed: 0,
+          authors: ['kritagya-khanna'],
+        },
+        reviews: {
+          count: 12,
+          authors: ['balrampandeydmifin', 'pandey019'],
+        },
+        issues: {
+          open: 0,
+          closed: 0,
+          participants: [],
+        },
+      },
+      reward: {
+        score: {
+          total: 9.400000000000002,
+          breakdown: {
+            commits: 1.4,
+            pullRequests: 0.0,
+            reviews: 8.000000000000002,
+            issues: 0.0,
+          },
+        },
+        breakdown: {
+          commits: 1.4,
+          pullRequests: 0.0,
+          reviews: 8.000000000000002,
+          issues: 0.0,
+        },
+        level: {
+          name: 'Member',
+          minScore: 0,
+          maxScore: 49,
+          color: '#A4A4A4',
+        },
+        monetary_reward: 500,
+        achievements: [],
+        metadata: {
+          timestamp: 1743903970995,
+          periodStart: 1743465600000,
+          periodEnd: 1743903970995,
+          source: 'github',
+          projectId: 'wootzapp/wootz-browser',
+        },
+      },
+    },
+  ],
+  dashboard: {
+    total_commits: 11,
+    total_projects: 6,
+    total_monetary_rewards: 3000,
+  },
+};
+
 export default function Home() {
   const [search, setSearch] = useState('');
   const [sortBy, setSortBy] = useState<'score' | 'reward'>('score');
   const [view, setView] = useState<'dashboard' | 'list'>('dashboard');
-  const [loading] = useState(false);
-  const [error] = useState<Error | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+  const [apiData, setApiData] = useState<ApiResponse | null>(null);
+  
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        setLoading(true);
+        
+        // Adicionar timeout para evitar espera infinita
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 segundos de timeout
+        
+        try {
+          // Usar a rota de API local definida nos rewrites do Next.js
+          const response = await fetch('/api/dashboard', {
+            signal: controller.signal,
+            headers: {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json'
+            }
+          });
+          
+          clearTimeout(timeoutId);
+          
+          if (!response.ok) {
+            throw new Error(`Erro na requisição: ${response.status}`);
+          }
+          
+          const data = await response.json();
+          console.log('Dados recebidos com sucesso:', data);
+          setApiData(data);
+          setError(null);
+        } catch (fetchError) {
+          console.error('Erro ao buscar dados da API:', fetchError);
+          
+          // Usar dados mockados em caso de erro
+          console.log('Usando dados mockados como fallback devido ao erro de rede');
+          setApiData(mockApiData);
+          setError(new Error('Não foi possível conectar à API. Usando dados de exemplo.'));
+        }
+      } catch (err) {
+        console.error('Erro não esperado:', err);
+        setError(err instanceof Error ? err : new Error('Erro desconhecido'));
+      } finally {
+        setLoading(false);
+      }
+    }
+    
+    fetchData();
+  }, []);
+  
+  // Transformar dados da API para o formato que nossa aplicação usa
+  const repositories = useMemo(() => {
+    if (!apiData) {
+      console.log('Usando dados mockados como fallback');
+      return mockRepositories;
+    }
+    
+    try {
+      return apiData.projects.map(project => ({
+        name: project.repository,
+        totalScore: project.reward.score.total,
+        weeklyReward: project.reward.monetary_reward,
+        rewardLevel: project.reward.level.name,
+        periodStart: new Date(project.reward.metadata.periodStart).toISOString(),
+        periodEnd: new Date(project.reward.metadata.periodEnd).toISOString(),
+      }));
+    } catch (err) {
+      console.error('Erro ao processar dados da API:', err);
+      return mockRepositories;
+    }
+  }, [apiData]);
 
   // Ensure unique repositories by name
   const uniqueRepositories = useMemo(() => {
     const repoMap = new Map();
-    mockRepositories.forEach(repo => {
+    repositories.forEach(repo => {
       if (!repoMap.has(repo.name)) {
         repoMap.set(repo.name, repo);
       }
     });
     return Array.from(repoMap.values());
-  }, []);
+  }, [repositories]);
 
   const filteredAndSortedRepos = useMemo(() => {
     return uniqueRepositories
@@ -80,31 +385,7 @@ export default function Home() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <Loader2 className="w-12 h-12 animate-spin text-blue-500 mx-auto" />
-          <p className="mt-4 text-gray-600">Loading repository metrics...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-        <div className="bg-white p-8 rounded-xl shadow-lg max-w-md w-full">
-          <div className="text-center">
-            <div className="bg-red-100 text-red-600 p-3 rounded-full w-12 h-12 mx-auto mb-4 flex items-center justify-center">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-              </svg>
-            </div>
-            <h2 className="text-xl font-semibold text-gray-900 mb-2">Error Loading Data</h2>
-            <p className="text-gray-600 mb-6">{error.message}</p>
-            <button
-              onClick={() => window.location.reload()}
-              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              Try Again
-            </button>
-          </div>
+          <p className="mt-4 text-gray-600">Carregando métricas dos repositórios...</p>
         </div>
       </div>
     );
@@ -122,10 +403,21 @@ export default function Home() {
       />
 
       <main className="flex-grow max-w-[2000px] mx-auto px-6 py-12 w-full">
-        <ProgramInfo />
+        {error && (
+          <div className="mb-8 bg-amber-50 border border-amber-200 rounded-lg p-4 text-amber-800 flex items-center gap-2">
+            <AlertCircle className="w-5 h-5 flex-shrink-0" />
+            <div>
+              <p className="font-medium">Aviso: {error.message}</p>
+              <p className="text-sm">Exibindo dados de exemplo. Tente novamente mais tarde.</p>
+            </div>
+          </div>
+        )}
         
         {view === 'dashboard' ? (
-          <DashboardStats repositories={uniqueRepositories} />
+          <DashboardStats 
+            repositories={uniqueRepositories} 
+            dashboardData={apiData?.dashboard}
+          />
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 mt-8">
             {filteredAndSortedRepos.map((repo) => (

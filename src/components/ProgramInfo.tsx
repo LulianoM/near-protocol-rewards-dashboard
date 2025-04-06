@@ -13,14 +13,14 @@ export function ProgramInfo() {
           </div>
         </div>
         <div className="flex-grow">
-          <h2 className="text-lg font-semibold text-gray-900 mb-2">Program Overview</h2>
+          <h2 className="text-lg font-semibold text-gray-900 mb-2">Visão Geral do Programa</h2>
           <p className="text-gray-600 mb-4">
-            The NEAR Protocol Rewards program incentivizes development activity and user adoption through a transparent, metric-based system. 
-            Projects are evaluated based on their GitHub activity, community engagement, and overall contribution to the NEAR ecosystem.
+            O programa de Recompensas do NEAR Protocol incentiva atividades de desenvolvimento e adoção pelos usuários através de um sistema transparente baseado em métricas. 
+            Os projetos são avaliados com base em suas atividades no GitHub, engajamento da comunidade e contribuição geral para o ecossistema NEAR.
           </p>
           <div className="flex items-center gap-2 text-sm text-gray-500">
             <AlertCircle className="w-4 h-4" />
-            <span>Last updated: {new Date().toLocaleDateString()}</span>
+            <span>Última atualização: {new Date().toLocaleDateString()}</span>
           </div>
         </div>
       </div>

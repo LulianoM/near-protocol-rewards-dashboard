@@ -27,8 +27,8 @@ export function Header({
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
           {/* Title Section */}
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">NEAR Protocol Rewards</h1>
-            <p className="text-sm sm:text-base text-gray-600 mt-1">Developer Activity & Rewards Dashboard</p>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Recompensas NEAR Protocol</h1>
+            <p className="text-sm sm:text-base text-gray-600 mt-1">Dashboard de Atividade e Recompensas</p>
           </div>
           
           {/* Controls Section */}
@@ -38,7 +38,7 @@ export function Header({
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
               <input
                 type="text"
-                placeholder="Search repositories..."
+                placeholder="Buscar repositórios..."
                 className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
@@ -68,7 +68,7 @@ export function Header({
                 }`}
               >
                 <List size={18} />
-                <span className="text-sm">List</span>
+                <span className="text-sm">Lista</span>
               </button>
 
               {/* Sort Button */}
@@ -77,7 +77,9 @@ export function Header({
                 className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 transition-colors"
               >
                 <ArrowUpDown size={18} />
-                <span className="text-sm">Sort by {sortBy === 'score' ? 'Score' : 'Reward'}</span>
+                <span className="text-sm">
+                  Ordenar por {sortBy === 'score' ? 'Pontuação' : 'Recompensa'}
+                </span>
               </button>
             </div>
           </div>
