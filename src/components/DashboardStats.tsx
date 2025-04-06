@@ -1,16 +1,22 @@
 'use client';
 
-import React from 'react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, Cell } from 'recharts';
+import React, { useMemo } from 'react';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, Cell, PieChart, Pie, Sector } from 'recharts';
 import { Activity, Users, TrendingUp, Award, Info } from 'lucide-react';
 
 interface Repository {
   name: string;
   totalScore: number;
   weeklyReward: number;
+  monthlyReward?: number;
   rewardLevel: string;
   periodStart: string;
   periodEnd: string;
+  commitScore?: number;
+  prScore?: number;
+  reviewScore?: number;
+  issueScore?: number;
+  activityCount?: number;
 }
 
 interface DashboardData {
@@ -34,7 +40,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
             <div className="w-3 h-3 rounded-full" style={{ backgroundColor: entry.fill }} />
             <span className="text-gray-600">{entry.name}:</span>
             <span className="font-medium text-gray-900">
-              {`${entry.value} points`}
+              {`${entry.value.toFixed(1)} points`}
             </span>
           </div>
         ))}
@@ -44,88 +50,23 @@ const CustomTooltip = ({ active, payload, label }: any) => {
   return null;
 };
 
-// Dados para o gráfico de contribuição
-const contributionBreakdownData = [
-  { 
-    name: 'near', 
-    commits: 150, 
-    prs: 140, 
-    reviews: 232, 
-    issues: 39,
-    level: 'Diamond',
-    totalScore: 561
-  },
-  { 
-    name: 'finowl-app', 
-    commits: 120, 
-    prs: 110, 
-    reviews: 200, 
-    issues: 45,
-    level: 'Gold',
-    totalScore: 475
-  },
-  { 
-    name: 'mutable-web-monorepo', 
-    commits: 95, 
-    prs: 80, 
-    reviews: 150, 
-    issues: 30,
-    level: 'Silver',
-    totalScore: 355
-  },
-  { 
-    name: 'otocol-rewards-dashboard', 
-    commits: 80, 
-    prs: 70, 
-    reviews: 120, 
-    issues: 25,
-    level: 'Bronze',
-    totalScore: 295
-  },
-  { 
-    name: 'oracle', 
-    commits: 65, 
-    prs: 60, 
-    reviews: 90, 
-    issues: 15,
-    level: 'Member',
-    totalScore: 230
-  },
-  { 
-    name: 'near-protocol-rewards', 
-    commits: 50, 
-    prs: 35, 
-    reviews: 70, 
-    issues: 20,
-    level: 'Member',
-    totalScore: 175
-  },
-  { 
-    name: 'quickjs-rust-near', 
-    commits: 30, 
-    prs: 45, 
-    reviews: 10, 
-    issues: 5,
-    level: 'Member',
-    totalScore: 90
-  },
-  { 
-    name: 'x-interface', 
-    commits: 40, 
-    prs: 15, 
-    reviews: 5, 
-    issues: 25,
-    level: 'Member',
-    totalScore: 85
-  },
-];
-
 const mockBarData = [
   { name: 'Category A', value: 400 },
   { name: 'Category B', value: 300 },
   { name: 'Category C', value: 600 },
   { name: 'Category D', value: 800 },
 ];
+
+const COLORS = {
+  Diamond: '#3B82F6', // Azul
+  Gold: '#EAB308',    // Amarelo/Dourado
+  Silver: '#94A3B8',  // Prata
+  Bronze: '#D97706',  // Bronze
+  Member: '#8B5CF6',  // Roxo
+  Low: '#64748B',     // Cinza
+  Medium: '#10B981',  // Verde
+  High: '#EC4899'     // Rosa
+};
 
 export function DashboardStats({ repositories, dashboardData }: DashboardStatsProps) {
   // Usar dados da API se disponíveis, ou calcular a partir dos repositórios
@@ -138,6 +79,84 @@ export function DashboardStats({ repositories, dashboardData }: DashboardStatsPr
     
   const activeRepos = dashboardData?.total_projects || repositories.length;
   
+  // Calcular total de atividades de todos os repositórios
+  const totalActivities = repositories.reduce((sum, repo) => sum + (repo.activityCount || 0), 0) || 
+    dashboardData?.total_commits || 0;
+
+  // Preparar dados para o gráfico de contribuição
+  const contributionBreakdownData = useMemo(() => {
+    // Ordenar repositórios por pontuação total (decrescente) e pegar os top 8
+    return [...repositories]
+      .sort((a, b) => b.totalScore - a.totalScore)
+      .slice(0, 8)
+      .map(repo => {
+        // Extrair apenas o nome do repositório sem o namespace
+        const repoNameParts = repo.name.split('/');
+        const displayName = repoNameParts.length > 1 ? repoNameParts[1] : repo.name;
+        
+        // Usar os scores detalhados da API, se disponíveis, ou estimá-los
+        const commits = repo.commitScore !== undefined ? repo.commitScore : repo.totalScore * 0.25;
+        const prs = repo.prScore !== undefined ? repo.prScore : repo.totalScore * 0.20;
+        const reviews = repo.reviewScore !== undefined ? repo.reviewScore : repo.totalScore * 0.40;
+        const issues = repo.issueScore !== undefined ? repo.issueScore : repo.totalScore * 0.15;
+        
+        return {
+          name: displayName,
+          commits: commits,
+          prs: prs,
+          reviews: reviews,
+          issues: issues,
+          level: repo.rewardLevel,
+          totalScore: repo.totalScore
+        };
+      });
+  }, [repositories]);
+  
+  // Preparar dados para o gráfico de distribuição por categoria
+  const distributionByCategoryData = useMemo(() => {
+    // Contar quantos repositórios existem em cada nível
+    const levelCounts: Record<string, number> = {};
+    
+    repositories.forEach(repo => {
+      const level = repo.rewardLevel;
+      levelCounts[level] = (levelCounts[level] || 0) + 1;
+    });
+    
+    // Converter para o formato esperado pelo gráfico
+    return Object.entries(levelCounts)
+      .map(([level, count]) => ({
+        name: level,
+        value: count,
+        fill: COLORS[level as keyof typeof COLORS] || '#CBD5E1' // Usar cor do nível ou cor padrão
+      }))
+      .sort((a, b) => {
+        // Ordenação personalizada por nível
+        const levelOrder = ['Diamond', 'Gold', 'Silver', 'Bronze', 'Member', 'High', 'Medium', 'Low'];
+        return levelOrder.indexOf(a.name) - levelOrder.indexOf(b.name);
+      });
+  }, [repositories]);
+
+  // Custom tooltip para o gráfico de distribuição por categoria
+  const LevelTooltip = ({ active, payload }: any) => {
+    if (active && payload && payload.length) {
+      const data = payload[0].payload;
+      return (
+        <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg">
+          <p className="font-medium text-gray-900 mb-1">{data.name} Level</p>
+          <div className="flex items-center gap-2 text-sm">
+            <div className="w-3 h-3 rounded-full" style={{ backgroundColor: data.fill }} />
+            <span className="text-gray-600">Repositories:</span>
+            <span className="font-medium text-gray-900">{data.value}</span>
+          </div>
+          <div className="text-xs text-gray-500 mt-2">
+            {Math.round(data.value / repositories.length * 100)}% of total
+          </div>
+        </div>
+      );
+    }
+    return null;
+  };
+
   return (
     <div className="space-y-8">
       {/* Stats Cards */}
@@ -195,16 +214,21 @@ export function DashboardStats({ repositories, dashboardData }: DashboardStatsPr
 
         <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
           <div className="flex items-center justify-between">
-            <p className="text-sm font-medium text-gray-600">Total Commits</p>
+            <p className="text-sm font-medium text-gray-600">Total Activities</p>
             <div className="group relative">
               <Info size={16} className="text-gray-400" />
               <div className="absolute right-0 mt-2 w-64 p-3 bg-gray-800 text-white text-sm rounded shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-10">
-                <p className="font-medium mb-1">Commits</p>
-                <p className="text-gray-300">Total number of commits across all monitored repositories</p>
+                <p className="font-medium mb-1">Activity Metrics</p>
+                <ul className="text-gray-300 list-disc pl-4 space-y-1">
+                  <li>Commits: Code contributions</li>
+                  <li>PRs: Pull request submissions</li>
+                  <li>Reviews: Code review participation</li>
+                  <li>Issues: Bug reports and features</li>
+                </ul>
               </div>
             </div>
           </div>
-          <p className="text-3xl font-bold text-orange-500 mt-2">{dashboardData?.total_commits || 0}</p>
+          <p className="text-3xl font-bold text-orange-500 mt-2">{totalActivities.toLocaleString()}</p>
           <div className="mt-2 text-sm text-gray-500">
             Combined developer actions
           </div>
@@ -249,18 +273,38 @@ export function DashboardStats({ repositories, dashboardData }: DashboardStatsPr
         </div>
 
         <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Distribution by Category</h3>
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Distribution by Level</h3>
           <div className="h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={mockBarData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis />
-                <Tooltip />
-                <Bar dataKey="value" fill="#3B82F6" />
+              <BarChart 
+                data={distributionByCategoryData}
+                margin={{ top: 20, right: 30, left: 20, bottom: 40 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+                <XAxis 
+                  dataKey="name" 
+                  angle={-45}
+                  textAnchor="end"
+                  tick={{ fontSize: 12 }}
+                  stroke="#9CA3AF"
+                  height={60}
+                />
+                <YAxis 
+                  stroke="#9CA3AF"
+                  tickLine={false}
+                />
+                <Tooltip content={LevelTooltip} />
+                <Bar dataKey="value" radius={[4, 4, 0, 0]}>
+                  {distributionByCategoryData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.fill} />
+                  ))}
+                </Bar>
               </BarChart>
             </ResponsiveContainer>
           </div>
+          <p className="text-xs text-gray-500 mt-4">
+            Number of repositories in each reward level category
+          </p>
         </div>
       </div>
     </div>

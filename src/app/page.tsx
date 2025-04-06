@@ -331,14 +331,35 @@ export default function Home() {
     }
     
     try {
-      return apiData.projects.map(project => ({
-        name: project.repository,
-        totalScore: project.reward.score.total,
-        weeklyReward: project.reward.monetary_reward,
-        rewardLevel: project.reward.level.name,
-        periodStart: new Date(project.reward.metadata.periodStart).toISOString(),
-        periodEnd: new Date(project.reward.metadata.periodEnd).toISOString(),
-      }));
+      return apiData.projects.map(project => {
+        const commitScore = project.reward.breakdown.commits;
+        const prScore = project.reward.breakdown.pullRequests;
+        const reviewScore = project.reward.breakdown.reviews;
+        const issueScore = project.reward.breakdown.issues;
+        
+        // Estimar contagem de atividades baseado nos scores (valores aproximados)
+        const activityCount = Math.round(
+          (project.metrics.commits.count || 0) + 
+          ((project.metrics.pull_requests.merged || 0) + (project.metrics.pull_requests.open || 0)) + 
+          (project.metrics.reviews.count || 0) + 
+          ((project.metrics.issues.open || 0) + (project.metrics.issues.closed || 0))
+        );
+        
+        return {
+          name: project.repository,
+          totalScore: project.reward.score.total,
+          weeklyReward: project.reward.monetary_reward,
+          monthlyReward: project.reward.monetary_reward * 4, // Estimativa mensal
+          rewardLevel: project.reward.level.name,
+          periodStart: new Date(project.reward.metadata.periodStart).toISOString(),
+          periodEnd: new Date(project.reward.metadata.periodEnd).toISOString(),
+          commitScore: commitScore,
+          prScore: prScore,
+          reviewScore: reviewScore,
+          issueScore: issueScore,
+          activityCount: activityCount
+        };
+      });
     } catch (err) {
       console.error('Erro ao processar dados da API:', err);
       return mockRepositories;
