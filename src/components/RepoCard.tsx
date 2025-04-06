@@ -59,8 +59,6 @@ export function RepoCard({ repo }: RepoCardProps) {
   const prScore = repo.prScore || (repo.totalScore * 0.20);
   const reviewScore = repo.reviewScore || (repo.totalScore * 0.40);
   const issueScore = repo.issueScore || (repo.totalScore * 0.15);
-  
-  const totalActivity = commitScore + prScore + reviewScore + issueScore;
 
   // Format dates
   const formatDate = (dateString: string) => {
