@@ -17,11 +17,14 @@ interface RepoCardProps {
 }
 
 export function RepoCard({ repo }: RepoCardProps) {
-  // Tradução dos níveis de recompensa
-  const nivelRecompensa = {
-    'High': 'Alto',
-    'Medium': 'Médio',
-    'Low': 'Baixo'
+  // English level names
+  const rewardLevelName = {
+    'High': 'High',
+    'Medium': 'Medium',
+    'Low': 'Low',
+    'Alto': 'High',
+    'Médio': 'Medium',
+    'Baixo': 'Low'
   }[repo.rewardLevel] || repo.rewardLevel;
 
   return (
@@ -32,23 +35,23 @@ export function RepoCard({ repo }: RepoCardProps) {
           <h3 className="text-lg font-semibold text-gray-900">{repo.name}</h3>
         </div>
         <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${
-          repo.rewardLevel === 'High' ? 'bg-green-100 text-green-800' :
-          repo.rewardLevel === 'Medium' ? 'bg-yellow-100 text-yellow-800' :
+          repo.rewardLevel === 'High' || repo.rewardLevel === 'Alto' ? 'bg-green-100 text-green-800' :
+          repo.rewardLevel === 'Medium' || repo.rewardLevel === 'Médio' ? 'bg-yellow-100 text-yellow-800' :
           'bg-red-100 text-red-800'
         }`}>
-          {nivelRecompensa}
+          {rewardLevelName}
         </span>
       </div>
 
       <div className="space-y-4">
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <p className="text-sm text-gray-600 mb-1">Pontuação Total</p>
+            <p className="text-sm text-gray-600 mb-1">Total Score</p>
             <p className="text-xl font-semibold text-gray-900">{repo.totalScore.toLocaleString()}</p>
           </div>
           <div>
-            <p className="text-sm text-gray-600 mb-1">Recompensa Semanal</p>
-            <p className="text-xl font-semibold text-gray-900">{repo.weeklyReward.toLocaleString()} NEAR</p>
+            <p className="text-sm text-gray-600 mb-1">Weekly Reward</p>
+            <p className="text-xl font-semibold text-gray-900">${repo.weeklyReward.toLocaleString()}</p>
           </div>
         </div>
 
@@ -69,7 +72,7 @@ export function RepoCard({ repo }: RepoCardProps) {
 
         <div className="flex items-center gap-2 text-sm text-gray-500">
           <AlertCircle className="w-4 h-4" />
-          <span>Período: {new Date(repo.periodStart).toLocaleDateString()} - {new Date(repo.periodEnd).toLocaleDateString()}</span>
+          <span>Period: {new Date(repo.periodStart).toLocaleDateString()} - {new Date(repo.periodEnd).toLocaleDateString()}</span>
         </div>
       </div>
     </div>

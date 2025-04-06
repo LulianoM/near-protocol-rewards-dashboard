@@ -290,12 +290,12 @@ export default function Home() {
       try {
         setLoading(true);
         
-        // Adicionar timeout para evitar espera infinita
+        // Add timeout to avoid infinite wait
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 segundos de timeout
+        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 seconds timeout
         
         try {
-          // Usar a rota de API local definida nos rewrites do Next.js
+          // Use local API route defined in Next.js rewrites
           const response = await fetch('/api/dashboard', {
             signal: controller.signal,
             headers: {
@@ -307,24 +307,24 @@ export default function Home() {
           clearTimeout(timeoutId);
           
           if (!response.ok) {
-            throw new Error(`Erro na requisição: ${response.status}`);
+            throw new Error(`Request error: ${response.status}`);
           }
           
           const data = await response.json();
-          console.log('Dados recebidos com sucesso:', data);
+          console.log('Data received successfully:', data);
           setApiData(data);
           setError(null);
         } catch (fetchError) {
-          console.error('Erro ao buscar dados da API:', fetchError);
+          console.error('Error fetching API data:', fetchError);
           
-          // Usar dados mockados em caso de erro
-          console.log('Usando dados mockados como fallback devido ao erro de rede');
+          // Use mock data as fallback
+          console.log('Using mock data as fallback due to network error');
           setApiData(mockApiData);
-          setError(new Error('Não foi possível conectar à API. Usando dados de exemplo.'));
+          setError(new Error('Could not connect to API. Using sample data.'));
         }
       } catch (err) {
-        console.error('Erro não esperado:', err);
-        setError(err instanceof Error ? err : new Error('Erro desconhecido'));
+        console.error('Unexpected error:', err);
+        setError(err instanceof Error ? err : new Error('Unknown error'));
       } finally {
         setLoading(false);
       }
@@ -385,7 +385,7 @@ export default function Home() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <Loader2 className="w-12 h-12 animate-spin text-blue-500 mx-auto" />
-          <p className="mt-4 text-gray-600">Carregando métricas dos repositórios...</p>
+          <p className="mt-4 text-gray-600">Loading repository metrics...</p>
         </div>
       </div>
     );
@@ -407,8 +407,8 @@ export default function Home() {
           <div className="mb-8 bg-amber-50 border border-amber-200 rounded-lg p-4 text-amber-800 flex items-center gap-2">
             <AlertCircle className="w-5 h-5 flex-shrink-0" />
             <div>
-              <p className="font-medium">Aviso: {error.message}</p>
-              <p className="text-sm">Exibindo dados de exemplo. Tente novamente mais tarde.</p>
+              <p className="font-medium">Warning: {error.message}</p>
+              <p className="text-sm">Displaying sample data. Please try again later.</p>
             </div>
           </div>
         )}

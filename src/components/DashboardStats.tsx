@@ -26,18 +26,18 @@ interface DashboardStatsProps {
 
 const mockData = [
   { name: 'Jan', value: 400 },
-  { name: 'Fev', value: 300 },
+  { name: 'Feb', value: 300 },
   { name: 'Mar', value: 600 },
-  { name: 'Abr', value: 800 },
-  { name: 'Mai', value: 700 },
+  { name: 'Apr', value: 800 },
+  { name: 'May', value: 700 },
   { name: 'Jun', value: 900 },
 ];
 
 const mockBarData = [
-  { name: 'Categoria A', value: 400 },
-  { name: 'Categoria B', value: 300 },
-  { name: 'Categoria C', value: 600 },
-  { name: 'Categoria D', value: 800 },
+  { name: 'Category A', value: 400 },
+  { name: 'Category B', value: 300 },
+  { name: 'Category C', value: 600 },
+  { name: 'Category D', value: 800 },
 ];
 
 export function DashboardStats({ repositories, dashboardData }: DashboardStatsProps) {
@@ -65,8 +65,8 @@ export function DashboardStats({ repositories, dashboardData }: DashboardStatsPr
               <Award className="w-6 h-6 text-blue-600" />
             </div>
             <div>
-              <p className="text-sm text-gray-600">Recompensas Totais</p>
-              <p className="text-2xl font-semibold text-gray-900">{totalRewards.toLocaleString()} NEAR</p>
+              <p className="text-sm text-gray-600">Total Rewards</p>
+              <p className="text-2xl font-semibold text-gray-900">${totalRewards.toLocaleString()}</p>
             </div>
           </div>
         </div>
@@ -77,7 +77,7 @@ export function DashboardStats({ repositories, dashboardData }: DashboardStatsPr
               <Activity className="w-6 h-6 text-green-600" />
             </div>
             <div>
-              <p className="text-sm text-gray-600">Pontuação Média</p>
+              <p className="text-sm text-gray-600">Average Score</p>
               <p className="text-2xl font-semibold text-gray-900">{averageScore.toFixed(2)}</p>
             </div>
           </div>
@@ -89,7 +89,7 @@ export function DashboardStats({ repositories, dashboardData }: DashboardStatsPr
               <Users className="w-6 h-6 text-purple-600" />
             </div>
             <div>
-              <p className="text-sm text-gray-600">Repositórios Ativos</p>
+              <p className="text-sm text-gray-600">Active Repositories</p>
               <p className="text-2xl font-semibold text-gray-900">{activeRepos}</p>
             </div>
           </div>
@@ -101,7 +101,7 @@ export function DashboardStats({ repositories, dashboardData }: DashboardStatsPr
               <TrendingUp className="w-6 h-6 text-orange-600" />
             </div>
             <div>
-              <p className="text-sm text-gray-600">Commits Totais</p>
+              <p className="text-sm text-gray-600">Total Commits</p>
               <p className="text-2xl font-semibold text-gray-900">{dashboardData?.total_commits || 0}</p>
             </div>
           </div>
@@ -111,7 +111,7 @@ export function DashboardStats({ repositories, dashboardData }: DashboardStatsPr
       {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Recompensas ao Longo do Tempo</h3>
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Rewards Over Time</h3>
           <div className="h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={mockData}>
@@ -126,7 +126,7 @@ export function DashboardStats({ repositories, dashboardData }: DashboardStatsPr
         </div>
 
         <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Distribuição por Categoria</h3>
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Distribution by Category</h3>
           <div className="h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={mockBarData}>
