@@ -88,16 +88,6 @@ interface ApiResponse {
   };
 }
 
-// Interface para o formato que nosso app utiliza
-interface Repository {
-  name: string;
-  totalScore: number;
-  weeklyReward: number;
-  rewardLevel: string;
-  periodStart: string;
-  periodEnd: string;
-}
-
 // Mock data como fallback
 const mockRepositories = [
   {

@@ -51,10 +51,6 @@ export function DashboardStats({ repositories, dashboardData }: DashboardStatsPr
     
   const activeRepos = dashboardData?.total_projects || repositories.length;
   
-  // Criar um valor percentual baseado no número de projetos
-  const totalPossibleRepos = 100; // Valor arbitrário para o cálculo
-  const participationRate = (activeRepos / totalPossibleRepos) * 100;
-
   return (
     <div className="space-y-8">
       {/* Stats Cards */}
