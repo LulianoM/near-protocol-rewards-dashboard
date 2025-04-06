@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { ExternalLink, GitCommit, GitPullRequest, MessageSquare, CircleDot, Github, TrendingUp, Award, Clock, Users, Zap, BarChart2, Activity } from 'lucide-react';
+import { ExternalLink, GitCommit, GitPullRequest, MessageSquare, CircleDot, TrendingUp, Award, Clock, Users, Zap, BarChart2 } from 'lucide-react';
 
 interface Repository {
   name: string;
@@ -54,14 +54,13 @@ export function RepoCard({ repo }: RepoCardProps) {
     Low: '🔋'
   };
 
-  // Calculate activity percentages
+  // Calculate activity scores
   const commitScore = repo.commitScore || (repo.totalScore * 0.25);
   const prScore = repo.prScore || (repo.totalScore * 0.20);
   const reviewScore = repo.reviewScore || (repo.totalScore * 0.40);
   const issueScore = repo.issueScore || (repo.totalScore * 0.15);
   
   const totalActivity = commitScore + prScore + reviewScore + issueScore;
-  const getPercentage = (value: number) => ((value / totalActivity) * 100).toFixed(1);
 
   // Format dates
   const formatDate = (dateString: string) => {
