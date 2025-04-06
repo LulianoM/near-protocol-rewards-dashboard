@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useMemo } from 'react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, Cell, PieChart, Pie, Sector } from 'recharts';
-import { Activity, Users, TrendingUp, Award, Info } from 'lucide-react';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
+import { Info } from 'lucide-react';
 
 interface Repository {
   name: string;
@@ -29,33 +29,6 @@ interface DashboardStatsProps {
   repositories: Repository[];
   dashboardData?: DashboardData;
 }
-
-const CustomTooltip = ({ active, payload, label }: any) => {
-  if (active && payload && payload.length) {
-    return (
-      <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg">
-        <p className="font-medium text-gray-900 mb-1">{label}</p>
-        {payload.map((entry: any, index: number) => (
-          <div key={index} className="flex items-center gap-2 text-sm">
-            <div className="w-3 h-3 rounded-full" style={{ backgroundColor: entry.fill }} />
-            <span className="text-gray-600">{entry.name}:</span>
-            <span className="font-medium text-gray-900">
-              {`${entry.value.toFixed(1)} points`}
-            </span>
-          </div>
-        ))}
-      </div>
-    );
-  }
-  return null;
-};
-
-const mockBarData = [
-  { name: 'Category A', value: 400 },
-  { name: 'Category B', value: 300 },
-  { name: 'Category C', value: 600 },
-  { name: 'Category D', value: 800 },
-];
 
 const COLORS = {
   Diamond: '#3B82F6', // Azul
@@ -135,27 +108,6 @@ export function DashboardStats({ repositories, dashboardData }: DashboardStatsPr
         return levelOrder.indexOf(a.name) - levelOrder.indexOf(b.name);
       });
   }, [repositories]);
-
-  // Custom tooltip para o gráfico de distribuição por categoria
-  const LevelTooltip = ({ active, payload }: any) => {
-    if (active && payload && payload.length) {
-      const data = payload[0].payload;
-      return (
-        <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg">
-          <p className="font-medium text-gray-900 mb-1">{data.name} Level</p>
-          <div className="flex items-center gap-2 text-sm">
-            <div className="w-3 h-3 rounded-full" style={{ backgroundColor: data.fill }} />
-            <span className="text-gray-600">Repositories:</span>
-            <span className="font-medium text-gray-900">{data.value}</span>
-          </div>
-          <div className="text-xs text-gray-500 mt-2">
-            {Math.round(data.value / repositories.length * 100)}% of total
-          </div>
-        </div>
-      );
-    }
-    return null;
-  };
 
   return (
     <div className="space-y-8">
@@ -259,7 +211,12 @@ export function DashboardStats({ repositories, dashboardData }: DashboardStatsPr
                   tick={{ fontSize: 12 }}
                   stroke="#9CA3AF"
                 />
-                <Tooltip content={<CustomTooltip />} />
+                <Tooltip
+                  formatter={(value: number, name: string) => {
+                    return [`${value.toFixed(1)} points`, name];
+                  }}
+                  labelFormatter={(label) => label}
+                />
                 <Bar dataKey="commits" stackId="a" fill="#3B82F6" name="Commits" />
                 <Bar dataKey="prs" stackId="a" fill="#10B981" name="Pull Requests" />
                 <Bar dataKey="reviews" stackId="a" fill="#8B5CF6" name="Reviews" />
@@ -293,7 +250,10 @@ export function DashboardStats({ repositories, dashboardData }: DashboardStatsPr
                   stroke="#9CA3AF"
                   tickLine={false}
                 />
-                <Tooltip content={LevelTooltip} />
+                <Tooltip
+                  formatter={(value: number) => [`${value} repositories`, 'Count']}
+                  labelFormatter={(name) => `${name} Level`}
+                />
                 <Bar dataKey="value" radius={[4, 4, 0, 0]}>
                   {distributionByCategoryData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.fill} />
